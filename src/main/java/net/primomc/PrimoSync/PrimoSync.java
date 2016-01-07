@@ -92,6 +92,10 @@ public class PrimoSync extends JavaPlugin implements Listener
             @Override
             public void run()
             {
+                if(Bukkit.getOnlinePlayers().isEmpty())
+                {
+                    return;
+                }
                 log( "Syncing balances for " + Bukkit.getOnlinePlayers().size() + " players." );
                 Map<UUID, Double> balances = new HashMap<>();
                 for ( Player player : Bukkit.getOnlinePlayers() )
@@ -159,7 +163,10 @@ public class PrimoSync extends JavaPlugin implements Listener
 
     public static void log(String message)
     {
-        PrimoSync.getInstance().getLogger().info(message);
+        if(PrimoSync.getInstance().getConfig().getBoolean( "verbose" ))
+        {
+            PrimoSync.getInstance().getLogger().info(message);
+        }
     }
 
     public class PrimoSyncSubscriber extends JedisPubSub

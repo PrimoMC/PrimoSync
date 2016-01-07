@@ -1,0 +1,14 @@
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  # Every server with the same channel will synchronize with each other. (case sensitive)
+  # If you have 5 servers, and you want 3 servers to synchronize with each other,
+  # and the 2 other servers to synchronize separately.
+  # Then you change the channel name to another unique name for the 2 other servers.
+  channel: "PrimoSync"
+sync:
+  #syncing of economy using Vault. The number is the interval in seconds. Set to 0 to disable.
+  economy: 10
+#Will turn off console messages when false.
+verbose: true

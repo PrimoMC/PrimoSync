@@ -77,7 +77,7 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>redis.clients.jedis</pattern>
+                                    <pattern>redis.clients</pattern>
                                     <shadedPattern>net.primomc.PrimoSync.internal.jedis</shadedPattern>
                                 </relocation>
                                 <relocation>

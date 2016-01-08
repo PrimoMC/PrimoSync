@@ -36,12 +36,13 @@ public class AsyncEcoTask extends BukkitRunnable
     {
         try(Jedis j = PrimoSync.getInstance().getPool().getResource())
         {
+            String msg = "Economy";
             for(UUID uuid : balances.keySet())
             {
                 double balance = balances.get(uuid);
-                String msg = "Economy;"+uuid.toString() + ";" + balance;
-                j.publish( PrimoSync.getInstance().getChannel(), msg );
+                msg += ";"+uuid.toString()+":"+balance;
             }
+            j.publish( PrimoSync.getInstance().getChannel(), msg );
         }
     }
 

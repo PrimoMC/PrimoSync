@@ -9,6 +9,6 @@ redis:
   channel: "PrimoSync"
 sync:
   #syncing of economy using Vault. The number is the interval in seconds. Set to 0 to disable.
-  economy: 10
-#Will turn off console messages when false.
-verbose: true
+  economy: 3
+#Will turn on console messages when true.
+verbose: false

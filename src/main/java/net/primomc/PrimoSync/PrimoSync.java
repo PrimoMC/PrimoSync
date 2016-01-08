@@ -39,6 +39,7 @@ public class PrimoSync extends JavaPlugin implements Listener
     private JedisPool pool;
     private static PrimoSync instance;
     private PrimoSyncSubscriber subscriber;
+    private Map<UUID, Double> cachedBalances = new HashMap<>();
 
     public static PrimoSync getInstance()
     {
@@ -94,6 +95,7 @@ public class PrimoSync extends JavaPlugin implements Listener
             {
                 if(Bukkit.getOnlinePlayers().isEmpty())
                 {
+                    cachedBalances.clear();
                     return;
                 }
                 log( "Syncing balances for " + Bukkit.getOnlinePlayers().size() + " players." );
@@ -101,8 +103,31 @@ public class PrimoSync extends JavaPlugin implements Listener
                 for ( Player player : Bukkit.getOnlinePlayers() )
                 {
                     double balance = economy.getBalance( player );
+                    if(cachedBalances.containsKey( player.getUniqueId() ) && cachedBalances.get( player.getUniqueId() ) == balance )
+                    {
+                        continue;
+                    }
                     balances.put( player.getUniqueId(), balance );
                 }
+                for(UUID uuid : cachedBalances.keySet())
+                {
+                    Player player = Bukkit.getPlayer( uuid );
+                    if(player == null || !player.isOnline())
+                    {
+                        cachedBalances.remove( uuid );
+                    }
+                }
+                cachedBalances.putAll( balances );
+                if(balances.isEmpty())
+                {
+                    log("No balances have changed.." );
+                    return;
+                }
+                if(Bukkit.getOnlinePlayers().size() - balances.size() > 0)
+                {
+                    log(Bukkit.getOnlinePlayers().size() - balances.size() + " balances haven't changed.");
+                }
+                log( "Saving " + balances.size() + " balances.." );
                 new AsyncEcoTask( balances ).start();
             }
         }.runTaskTimer( this, 0, seconds * 20 );
@@ -201,28 +226,41 @@ public class PrimoSync extends JavaPlugin implements Listener
 
                 private void handleEconomy( String[] args )
                 {
-                    if ( args.length < 2 )
+                    if ( args.length < 1 )
                     {
                         return;
                     }
-                    UUID uuid = UUID.fromString( args[0] );
-                    OfflinePlayer player = Bukkit.getOfflinePlayer( uuid );
-                    if ( player == null )
+                    for(String arg : args)
                     {
-                        return;
+                        if(arg.trim().isEmpty())
+                        {
+                            continue;
+                        }
+                        String[] split = arg.split( ":" );
+                        if(split.length < 2)
+                        {
+                            continue;
+                        }
+                        UUID uuid = UUID.fromString( split[0] );
+                        OfflinePlayer player = Bukkit.getOfflinePlayer( uuid );
+                        if ( player == null )
+                        {
+                            return;
+                        }
+                        double balance = TypeUtil.getDouble( split[1] );
+                        if ( !economy.hasAccount( player ) )
+                        {
+                            economy.createPlayerAccount( player );
+                            economy.depositPlayer( player, balance );
+                        }
+                        else
+                        {
+                            double prevBal = economy.getBalance( player );
+                            economy.withdrawPlayer( player, prevBal );
+                            economy.depositPlayer( player, balance );
+                        }
                     }
-                    double balance = TypeUtil.getDouble( args[1] );
-                    if ( !economy.hasAccount( player ) )
-                    {
-                        economy.createPlayerAccount( player );
-                        economy.depositPlayer( player, balance );
-                    }
-                    else
-                    {
-                        double prevBal = economy.getBalance( player );
-                        economy.withdrawPlayer( player, prevBal );
-                        economy.depositPlayer( player, balance );
-                    }
+
                 }
             }.runTask( PrimoSync.getInstance() );
         }

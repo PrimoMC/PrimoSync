@@ -1,5 +1,5 @@
 name: PrimoSync
 main: net.primomc.PrimoSync.PrimoSync
-version: 1.0
+version: 1.0.1 Beta
 author: kukelekuuk00
 depend: [Vault]

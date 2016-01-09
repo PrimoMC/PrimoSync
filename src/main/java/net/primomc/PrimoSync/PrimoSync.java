@@ -28,10 +28,9 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class PrimoSync extends JavaPlugin implements Listener
 {
@@ -39,7 +38,7 @@ public class PrimoSync extends JavaPlugin implements Listener
     private JedisPool pool;
     private static PrimoSync instance;
     private PrimoSyncSubscriber subscriber;
-    private Map<UUID, Double> cachedBalances = new HashMap<>();
+    private ConcurrentMap<UUID, Double> cachedBalances = new ConcurrentHashMap<>();
 
     public static PrimoSync getInstance()
     {
@@ -109,7 +108,7 @@ public class PrimoSync extends JavaPlugin implements Listener
                     }
                     balances.put( player.getUniqueId(), balance );
                 }
-                for(UUID uuid : cachedBalances.keySet())
+                for(UUID uuid : new ArrayList<>( cachedBalances.keySet() ))
                 {
                     Player player = Bukkit.getPlayer( uuid );
                     if(player == null || !player.isOnline())

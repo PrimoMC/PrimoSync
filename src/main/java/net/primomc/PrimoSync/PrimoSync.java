@@ -242,9 +242,9 @@ public class PrimoSync extends JavaPlugin implements Listener
                         }
                         UUID uuid = UUID.fromString( split[0] );
                         OfflinePlayer player = Bukkit.getOfflinePlayer( uuid );
-                        if ( player == null )
+                        if ( player == null || player.getName() == null || player.getUniqueId() == null )
                         {
-                            return;
+                            continue;
                         }
                         double balance = TypeUtil.getDouble( split[1] );
                         if ( !economy.hasAccount( player ) )
